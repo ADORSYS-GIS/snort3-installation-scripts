@@ -1,0 +1,44 @@
+name: Snort 3 Installation and Uninstallation Test
+
+on: [push, pull_request]
+
+jobs:
+  test-snort:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, debian-latest]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y libpcap-dev
+
+      - name: Run installation script
+        run: |
+          chmod +x ./install-snort3.sh
+          sudo ./install-snort3.sh
+
+      - name: Verify Snort installation
+        run: snort -V
+
+      - name: Run uninstallation script
+        run: |
+          chmod +x ./uninstall-snort3.sh
+          sudo ./uninstall-snort3.sh
+
+      - name: Verify Snort uninstallation
+        run: |
+          if command -v snort &> /dev/null; then
+            echo "Snort is still installed"
+            exit 1
+          else
+            echo "Snort has been successfully uninstalled"
+          fi
