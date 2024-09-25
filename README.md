@@ -78,7 +78,7 @@ You can specify the versions of the dependencies and Snort3 that you want to ins
 - `PCRE_VERSION=8.45`
 - `ZLIB_VERSION=1.2.13`
 - `SNORT_VER=3.3.1.0`
-- `ARCH=$(dpkg --print-architecture)`
+
 
 For example, to install a different version of Snort, you can run:
 
