@@ -132,9 +132,19 @@ sudo mv snort3_${SNORT_VER}-1_amd64.deb $WORK_DIR
 
 cd $WORK_DIR
 rm -rf snort3-${SNORT_VER} ${SNORT_VER}.tar.gz
---
 
-# Config Snort 3 as a service
+# Create Snort user and group
+sudo groupadd snort
+sudo useradd -r -s /sbin/nologin -g snort snort
+
+# Set permissions for Snort log directory
+sudo mkdir -p /var/log/snort
+sudo chown -R snort:snort /var/log/snort
+sudo chmod 750 /var/log/snort
+
+# Grant network packet capture privileges to Snort binary
+sudo setcap cap_net_raw,cap_net_admin=eip /usr/local/bin/snort
+
 # Get the main network interface
 MAIN_INTERFACE=$(ip route | grep default | awk '{print $5}')
 
@@ -155,11 +165,6 @@ SNORT_BIN="/usr/local/bin/snort"
 LOG_DIR="/var/log/snort"
 SERVICE_FILE="/etc/systemd/system/snort.service"
 
-# Create the log directory if it doesn't exist
-sudo mkdir -p $LOG_DIR
-sudo chown snort:snort $LOG_DIR
-sudo chmod 750 $LOG_DIR
-
 # Create the Snort service file
 cat <<EOL | sudo tee $SERVICE_FILE
 [Unit]
@@ -169,6 +174,8 @@ After=network.target
 [Service]
 Type=simple
 ExecStart=$SNORT_BIN -c $SNORT_CONFIG -i $MAIN_INTERFACE --log-dir=$LOG_DIR
+User=snort
+Group=snort
 Restart=on-failure
 
 [Install]
