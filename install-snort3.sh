@@ -1,5 +1,33 @@
 #!/bin/bash
-
+# This script is designed to install and configure Snort 3, a powerful open-source intrusion detection and prevention system (IDS/IPS).
+#
+# Context:
+# This script automates the installation of various dependencies and libraries required by Snort 3,
+# and sets it up to run as a service on the system. It is useful for network security professionals and 
+# system administrators looking to deploy Snort for monitoring and protecting network traffic.
+#
+# Execution:
+# To execute this script, follow these steps:
+# 1. Ensure you have a Debian-based system with sudo privileges.
+# 2. Open your terminal.
+# 3. Navigate to the directory containing this script.
+# 4. Run the script using the following command:
+#    ```shell
+#   sudo ./install-snort3.sh
+#    ```
+# 5. The script will install necessary dependencies, build libraries, 
+#    and configure Snort as a service.
+#
+# Example:
+# ```shell
+# ./install-snort3.sh
+# ```
+#
+# Note:
+# - Ensure that your system meets all prerequisite software requirements.
+# - The script assumes an amd64 or arm64 architecture for installation.
+# - Adjust firewall settings as necessary to allow Snort to function correctly.
+#
 set -e
 
 # Variables

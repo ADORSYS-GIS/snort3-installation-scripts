@@ -1,5 +1,31 @@
 #!/bin/bash
-
+# This script is designed to uninstall Snort 3 and its dependencies from the system.
+#
+# Context:
+# This script automates the removal of Snort 3, its associated libraries, and dependencies,
+# and cleans up any residual files or configurations. It is useful for network security professionals 
+# and system administrators who need to completely remove Snort from their systems.
+#
+# Execution:
+# To execute this script, follow these steps:
+# 1. Ensure you have a Debian-based system with sudo privileges.
+# 2. Open your terminal.
+# 3. Navigate to the directory containing this script.
+# 4. Run the script using the following command:
+#    ```shell
+#   sudo ./uninstall-snort3.sh
+#    ```
+# 5. The script will stop the Snort service, remove installed packages, 
+#    delete user and group configurations, and clean up the system.
+#
+# Example:
+# ```shell
+# ./uninstall-snort3.sh
+# ```
+#
+# Note:
+# - Ensure that you have backed up any necessary configurations or logs before running this script.
+# - The script assumes an amd64 or arm64 architecture for uninstallation.
 set -e
 
 # Variables
