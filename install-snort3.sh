@@ -133,4 +133,58 @@ sudo mv snort3_${SNORT_VER}-1_amd64.deb $WORK_DIR
 cd $WORK_DIR
 rm -rf snort3-${SNORT_VER} ${SNORT_VER}.tar.gz
 
+# Config Snort 3 as a service
+# Get the main network interface
+MAIN_INTERFACE=$(ip route | grep default | awk '{print $5}')
+
+# Check if the interface was found
+if [[ -z "$MAIN_INTERFACE" ]]; then
+    echo "Error: Unable to determine the main network interface."
+    exit 1
+fi
+
+echo "Main network interface: $MAIN_INTERFACE"
+
+# Set the interface to promiscuous mode
+sudo ip link set $MAIN_INTERFACE promisc on
+
+# Paths and variables
+SNORT_CONFIG="/usr/local/etc/snort/snort.lua" # Change the path if necessary
+SNORT_BIN="/usr/local/bin/snort" # Change the path if necessary
+LOG_DIR="/var/log/snort"
+SERVICE_FILE="/etc/systemd/system/snort.service"
+
+# Create the log directory if it doesn't exist
+sudo mkdir -p $LOG_DIR
+sudo chown snort:snort $LOG_DIR
+sudo chmod 750 $LOG_DIR
+
+# Create the Snort service file
+cat <<EOL | sudo tee $SERVICE_FILE
+[Unit]
+Description=Snort 3 Intrusion Detection System
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=$SNORT_BIN -c $SNORT_CONFIG -i $MAIN_INTERFACE --log-dir=$LOG_DIR
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+EOL
+
+# Reload systemd services
+sudo systemctl daemon-reload
+
+# Enable the Snort service to start on boot
+sudo systemctl enable snort.service
+
+# Start the Snort service
+sudo systemctl start snort.service
+
+echo "Snort 3 service created and started successfully."
+
+
 echo "Snort 3 installation and packaging is complete."
+
