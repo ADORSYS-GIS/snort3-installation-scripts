@@ -27,7 +27,9 @@ jobs:
           sudo ./install-snort3.sh
 
       - name: Verify Snort installation
-        run: snort -V
+        run: |
+          snort -V
+          sudo systemctl status snort
 
       - name: Run uninstallation script
         run: |
