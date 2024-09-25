@@ -1,22 +1,18 @@
-# Snort3 Installation Script for Linux
+[![Snort 3 Installation and Uninstallation Test](https://github.com/bengo237/snort3-intall-script/actions/workflows/snort-test.yaml/badge.svg)](https://github.com/bengo237/snort3-intall-script/actions/workflows/snort-test.yaml)
+# Snort3 Installation and Uninstallation Script for Linux
 
-This repository contains a Bash script that automates the process of installing and configuring Snort3 on a Linux system. Snort is an open-source network intrusion prevention system (NIPS) and network intrusion detection system (NIDS) capable of performing real-time traffic analysis and packet logging.
+This repository contains a Bash scripts that automates the process of installing, configuring, and uninstalling Snort3 on a Linux system. Snort is an open-source network intrusion prevention system (NIPS) and network intrusion detection system (NIDS) capable of performing real-time traffic analysis and packet logging.
 
 ## Features
-- Installs all necessary dependencies
-- Downloads and compiles Snort3 from source
-- Sets up Snort3 configurations for optimal performance
-- Easy to use with a single command
+
+- **Installation Script**: Installs all necessary dependencies and downloads/compiles Snort3 from source.
+- **Uninstallation Script**: Completely removes Snort3 and its dependencies, along with system configurations.
+- **Automated Testing Workflow**: Includes GitHub Actions workflow for testing the installation and uninstallation scripts on Ubuntu and Debian.
+- **Systemd Service**: Configures Snort3 as a `systemd` service for easy management and ensures it runs at system boot.
 
 ## Prerequisites
-Before running the script, ensure that you have the following prerequisites installed:
 
-- `git`
-- `wget`
-- `gcc`
-- `cmake`
-- `libpcap`
-- Other dependencies as needed by Snort3
+Before running the installation script, ensure that `git` is installed on your system. Other necessary tools and libraries, such as `wget`, `gcc`, `cmake`, `libpcap-dev`, and additional dependencies required by Snort3, will be automatically installed by the script.
 
 ## Installation
 
@@ -25,3 +21,87 @@ Before running the script, ensure that you have the following prerequisites inst
    ```bash
    git clone https://github.com/bengo237/snort3-install-script.git
    cd snort3-install-script
+   ```
+
+2. Make the installation script executable and run it:
+
+   ```bash
+   chmod +x ./install-snort3.sh
+   sudo ./install-snort3.sh
+   ```
+
+   This script will:
+   - Download and compile Snort3 from source.
+   - Install all necessary dependencies such as `libpcap`, `libdaq`, `pcre`, `zlib`, and more.
+   - Set up Snort as a `systemd` service for easy management.
+
+3. Once the installation is complete, verify the installation by running:
+
+   ```bash
+   snort -V
+   ```
+
+## Uninstallation
+
+To completely uninstall Snort3 and remove all configurations, you can run the uninstallation script:
+
+1. Make the uninstallation script executable and run it:
+
+   ```bash
+   chmod +x ./uninstall-snort3.sh
+   sudo ./uninstall-snort3.sh
+   ```
+
+   This script will:
+   - Stop and disable the Snort service.
+   - Remove all Snort binaries, dependencies, and system configurations.
+   - Remove the Snort user and associated directories.
+
+2. After uninstallation, you can verify that Snort has been removed by checking:
+
+   ```bash
+   if command -v snort &> /dev/null; then
+       echo "Snort is still installed"
+   else
+       echo "Snort has been successfully uninstalled"
+   fi
+   ```
+
+## Version Customization
+
+You can specify the versions of the dependencies and Snort3 that you want to install by setting the following environment variables before running the installation script. The default versions are:
+
+- `LIBDAQ_VERSION=3.0.15`
+- `LIBDNET_VERSION=1.14`
+- `FLEX_VERSION=2.6.4`
+- `HWLOC_VERSION=2.5.0`
+- `PCRE_VERSION=8.45`
+- `ZLIB_VERSION=1.2.13`
+- `SNORT_VER=3.3.1.0`
+
+
+For example, to install a different version of Snort, you can run:
+
+```bash
+export SNORT_VER=3.1.0.0
+sudo ./install-snort3.sh
+```
+
+## Automated Testing with GitHub Actions
+
+This repository also includes a GitHub Actions workflow to automatically test the installation and uninstallation scripts on different operating systems (Ubuntu and Debian). The workflow is triggered on `push` and `pull_request` events.
+
+## Notes
+
+- Ensure that you run the scripts as `root` or with `sudo` privileges to avoid permission issues.
+- The scripts are tested on the latest versions of Ubuntu and Debian. Compatibility with other Linux distributions may vary.
+- If you encounter any issues during installation or uninstallation, feel free to open an issue on the repository.
+
+## License
+
+This project is licensed under the MIT License. See the `LICENSE` file for details.
+
+## Support
+
+If you find this project helpful, please consider giving it a star on GitHub! ⭐
+If you reuse or fork this repository, kindly mention the original repository to give credit. Thank you for your support!
