@@ -30,6 +30,12 @@ Before running the installation script, ensure that `git` is installed on your s
    sudo ./install-snort3.sh
    ```
 
+   Alternatively, you can run the installation script directly from the repository:
+
+   ```bash
+   sudo curl -sl https://raw.githubusercontent.com/bengo237/snort3-intall-script/refs/heads/main/install-snort3.sh | bash
+   ```
+
    This script will:
    - Download and compile Snort3 from source.
    - Install all necessary dependencies such as `libpcap`, `libdaq`, `pcre`, `zlib`, and more.
@@ -78,7 +84,6 @@ You can specify the versions of the dependencies and Snort3 that you want to ins
 - `PCRE_VERSION=8.45`
 - `ZLIB_VERSION=1.2.13`
 - `SNORT_VER=3.3.1.0`
-
 
 For example, to install a different version of Snort, you can run:
 
