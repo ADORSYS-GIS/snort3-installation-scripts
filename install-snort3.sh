@@ -173,7 +173,7 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart=$SNORT_BIN -c $SNORT_CONFIG -i $MAIN_INTERFACE --log-dir=$LOG_DIR
+ExecStart=$SNORT_BIN -c $SNORT_CONFIG -i $MAIN_INTERFACE -l $LOG_DIR
 User=snort
 Group=snort
 Restart=on-failure
