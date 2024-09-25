@@ -83,7 +83,6 @@ The workflow performs the following steps:
 6. **Run Uninstallation Script**: Executes `uninstall-snort3.sh` to completely remove Snort3.
 7. **Verify Snort Uninstallation**: Ensures that Snort has been fully removed by checking if the `snort` command is no longer available.
 
-
 ## Notes
 
 - Ensure that you run the scripts as `root` or with `sudo` privileges to avoid permission issues.
@@ -93,4 +92,9 @@ The workflow performs the following steps:
 ## License
 
 This project is licensed under the MIT License. See the `LICENSE` file for details.
+
+## Support
+
+If you find this project helpful, please consider giving it a star on GitHub! ⭐
+If you reuse or fork this repository, kindly mention the original repository to give credit. Thank you for your support!
 
