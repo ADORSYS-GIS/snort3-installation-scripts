@@ -1,7 +1,7 @@
 [![Snort 3 Installation and Uninstallation Test](https://github.com/bengo237/snort3-intall-script/actions/workflows/snort-test.yaml/badge.svg)](https://github.com/bengo237/snort3-intall-script/actions/workflows/snort-test.yaml)
 # Snort3 Installation and Uninstallation Script for Linux
 
-This repository contains a Bash script that automates the process of installing, configuring, and uninstalling Snort3 on a Linux system. Snort is an open-source network intrusion prevention system (NIPS) and network intrusion detection system (NIDS) capable of performing real-time traffic analysis and packet logging.
+This repository contains a Bash scripts that automates the process of installing, configuring, and uninstalling Snort3 on a Linux system. Snort is an open-source network intrusion prevention system (NIPS) and network intrusion detection system (NIDS) capable of performing real-time traffic analysis and packet logging.
 
 ## Features
 
