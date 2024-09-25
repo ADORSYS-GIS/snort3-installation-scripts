@@ -67,21 +67,29 @@ To completely uninstall Snort3 and remove all configurations, you can run the un
    fi
    ```
 
+## Version Customization
+
+You can specify the versions of the dependencies and Snort3 that you want to install by setting the following environment variables before running the installation script. The default versions are:
+
+- `LIBDAQ_VERSION=3.0.15`
+- `LIBDNET_VERSION=1.14`
+- `FLEX_VERSION=2.6.4`
+- `HWLOC_VERSION=2.5.0`
+- `PCRE_VERSION=8.45`
+- `ZLIB_VERSION=1.2.13`
+- `SNORT_VER=3.3.1.0`
+- `ARCH=$(dpkg --print-architecture)`
+
+For example, to install a different version of Snort, you can run:
+
+```bash
+export SNORT_VER=3.1.0.0
+sudo ./install-snort3.sh
+```
+
 ## Automated Testing with GitHub Actions
 
 This repository also includes a GitHub Actions workflow to automatically test the installation and uninstallation scripts on different operating systems (Ubuntu and Debian). The workflow is triggered on `push` and `pull_request` events.
-
-### Workflow: Snort 3 Installation and Uninstallation Test
-
-The workflow performs the following steps:
-
-1. **Checkout Repository**: Checks out the repository where the scripts are stored.
-2. **Set Up Python**: Sets up Python 3.x environment (if needed for other processes).
-3. **Install Dependencies**: Installs essential dependencies, like `libpcap-dev`.
-4. **Run Installation Script**: Runs the `install-snort3.sh` script to install Snort3.
-5. **Verify Snort Installation**: Runs `snort -V` to ensure Snort has been successfully installed.
-6. **Run Uninstallation Script**: Executes `uninstall-snort3.sh` to completely remove Snort3.
-7. **Verify Snort Uninstallation**: Ensures that Snort has been fully removed by checking if the `snort` command is no longer available.
 
 ## Notes
 
@@ -97,4 +105,3 @@ This project is licensed under the MIT License. See the `LICENSE` file for detai
 
 If you find this project helpful, please consider giving it a star on GitHub! ⭐
 If you reuse or fork this repository, kindly mention the original repository to give credit. Thank you for your support!
-

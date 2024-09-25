@@ -9,7 +9,7 @@ FLEX_VERSION=2.6.4
 HWLOC_VERSION=2.5.0
 PCRE_VERSION=8.45
 ZLIB_VERSION=1.2.13
-SNORT_VER=3.2.2.0
+SNORT_VER=3.3.1.0
 ARCH=$(dpkg --print-architecture)
 
 # Disable interactive prompts
