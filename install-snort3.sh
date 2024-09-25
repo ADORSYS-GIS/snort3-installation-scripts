@@ -134,6 +134,8 @@ cd $WORK_DIR
 rm -rf snort3-${SNORT_VER} ${SNORT_VER}.tar.gz
 
 # Config Snort 3 as a service
+#!/bin/bash
+
 # Get the main network interface
 MAIN_INTERFACE=$(ip route | grep default | awk '{print $5}')
 
@@ -149,8 +151,8 @@ echo "Main network interface: $MAIN_INTERFACE"
 sudo ip link set $MAIN_INTERFACE promisc on
 
 # Paths and variables
-SNORT_CONFIG="/usr/local/etc/snort/snort.lua" # Change the path if necessary
-SNORT_BIN="/usr/local/bin/snort" # Change the path if necessary
+SNORT_CONFIG="/usr/local/etc/snort/snort.lua" 
+SNORT_BIN="/usr/local/bin/snort" 
 LOG_DIR="/var/log/snort"
 SERVICE_FILE="/etc/systemd/system/snort.service"
 
@@ -184,7 +186,3 @@ sudo systemctl enable snort.service
 sudo systemctl start snort.service
 
 echo "Snort 3 service created and started successfully."
-
-
-echo "Snort 3 installation and packaging is complete."
-
