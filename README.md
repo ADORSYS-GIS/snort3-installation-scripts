@@ -7,6 +7,7 @@ This repository contains a Bash script that automates the process of installing 
 - Downloads and compiles Snort3 from source
 - Sets up Snort3 configurations for optimal performance
 - Easy to use with a single command
+- Configures Snort3 as a systemd service for easy management
 
 ## Prerequisites
 Before running the script, ensure that you have the following prerequisites installed:
