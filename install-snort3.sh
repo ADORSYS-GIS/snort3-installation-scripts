@@ -132,10 +132,9 @@ sudo mv snort3_${SNORT_VER}-1_amd64.deb $WORK_DIR
 
 cd $WORK_DIR
 rm -rf snort3-${SNORT_VER} ${SNORT_VER}.tar.gz
+--
 
 # Config Snort 3 as a service
-#!/bin/bash
-
 # Get the main network interface
 MAIN_INTERFACE=$(ip route | grep default | awk '{print $5}')
 
