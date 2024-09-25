@@ -1,22 +1,31 @@
+# This script automates the installation and setup of Snort 3 on a Debian-based system.
+# It performs the following steps:
+# 1. Defines text formatting for logging.
+# 2. Sets up logging functions with timestamps.
+# 3. Defines variables for versions of dependencies and architecture.
+# 4. Disables interactive prompts for package installation.
+# 5. Updates the system and installs necessary packages.
+# 6. Installs Go programming language based on system architecture.
+# 7. Installs protoc-gen-go and protoc-gen-go-grpc.
+# 8. Creates a working directory for building dependencies.
+# 9. Downloads, builds, and installs libdaq.
+# 10. Downloads, builds, and installs libdnet.
+# 11. Downloads, builds, and installs Flex.
+# 12. Downloads, builds, and installs hwloc.
+# 13. Clones, builds, and installs LuaJIT.
+# 14. Downloads, builds, and installs PCRE.
+# 15. Downloads, builds, and installs zlib.
+# 16. Downloads, builds, and installs Snort 3.
+# 17. Creates a Snort user and group.
+# 18. Sets permissions for the Snort log directory.
+# 19. Grants network packet capture privileges to the Snort binary.
+# 20. Determines the main network interface and sets it to promiscuous mode.
+# 21. Creates a systemd service file for Snort.
+# 22. Reloads systemd services and enables the Snort service to start on boot.
+# 23. Starts the Snort service.
 #!/bin/bash
-# This script is designed to install and configure Snort 3, a powerful open-source intrusion detection and prevention system (IDS/IPS).
-# 
-# Usage:
-#   ./install-snort3.sh
-#
-# Features:
-# - Installs necessary dependencies for Snort 3.
-# - Downloads and compiles Snort 3 from source.
-# - Configures Snort 3 with default settings.
-# - Sets up Snort 3 to run as a service.
-#
-# Requirements:
-# - Root or sudo privileges.
-# - Internet connection to download packages and Snort 3 source code.
-#
-# Note:
-# - Ensure that your system meets the hardware and software requirements for Snort 3.
-# - Review and modify configuration settings as needed for your specific environment.
+
+set -e
 
 # Define text formatting
 RED='\033[0;31m'
@@ -57,8 +66,6 @@ print_step() {
     log "${BLUE}${BOLD}[STEP]${NORMAL}" "$1: $2"
 }
 
-set -e
-
 # Variables
 LIBDAQ_VERSION=3.0.15
 LIBDNET_VERSION=1.14
@@ -72,135 +79,174 @@ ARCH=$(dpkg --print-architecture)
 # Disable interactive prompts
 export DEBIAN_FRONTEND=noninteractive
 
-print_step "Initializing" "Updating system and installing dependencies..."
 # Update system and install dependencies
+print_step "Updating system" "Installing necessary packages..."
 sudo apt-get update && sudo apt-get install -y --no-install-recommends \
     git libtool pkg-config autoconf gettext \
     libpcap-dev g++ vim make cmake wget libssl-dev \
     liblzma-dev python3-pip unzip protobuf-compiler \
     golang nano net-tools automake checkinstall
+success_message "System updated and packages installed."
 
-success_message "System updated and dependencies installed successfully."
-
-print_step "Installing" "Go programming language..."
 # Install Go
 if [ "$ARCH" = "amd64" ]; then
     GO_BIN=go1.22.4.linux-amd64.tar.gz
 elif [ "$ARCH" = "arm64" ]; then
     GO_BIN=go1.22.4.linux-arm64.tar.gz
 else
-    error_message "Unsupported architecture."
+    error_message "Unsupported architecture"
     exit 1
 fi
-
+print_step "Downloading" "Go binary..."
 wget https://go.dev/dl/${GO_BIN}
 tar -xvf ${GO_BIN}
 sudo mv go /usr/local
 rm -rf ${GO_BIN}
 export PATH=$PATH:/usr/local/go/bin
-
 success_message "Go installed successfully."
 
-print_step "Installing" "Protobuf tools..."
 # Install protoc-gen-go and protoc-gen-go-grpc
+print_step "Installing" "protoc-gen-go and protoc-gen-go-grpc..."
 go install github.com/golang/protobuf/protoc-gen-go@v1.5.2
 go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.1.0
 sudo mv ~/go/bin/protoc-gen-go /usr/local/bin/
 sudo mv ~/go/bin/protoc-gen-go-grpc /usr/local/bin/
-
-success_message "Protobuf tools installed successfully."
+success_message "protoc-gen-go and protoc-gen-go-grpc installed successfully."
 
 # Create working directories
 WORK_DIR=/work
 sudo mkdir -p $WORK_DIR
 sudo chmod 777 $WORK_DIR
-
-# Function to install a library
-install_library() {
-    local LIB_NAME="$1"
-    local LIB_VERSION="$2"
-    local LIB_URL="$3"
-
-    print_step "Downloading" "$LIB_NAME version $LIB_VERSION..."
-    wget "$LIB_URL"
-    tar -xvf "$LIB_NAME-$LIB_VERSION.tar.gz"
-    cd "$LIB_NAME-$LIB_VERSION"
-    ./configure && make
-    sudo checkinstall --pkgname="$LIB_NAME" --pkgversion="$LIB_VERSION" --backup=no --deldoc=yes --fstrans=no --default
-    sudo mv "${LIB_NAME}_${LIB_VERSION}-1_amd64.deb" $WORK_DIR
-    cd $WORK_DIR
-    rm -rf "$LIB_NAME-$LIB_VERSION" "$LIB_NAME-$LIB_VERSION.tar.gz"
-
-    success_message "$LIB_NAME installed successfully."
-}
+success_message "Working directory created."
 
 # Install libdaq
-install_library "libdaq" "${LIBDAQ_VERSION}" "https://github.com/snort3/libdaq/archive/refs/tags/v${LIBDAQ_VERSION}.tar.gz"
+cd $WORK_DIR
+print_step "Downloading" "libdaq version ${LIBDAQ_VERSION}..."
+wget https://github.com/snort3/libdaq/archive/refs/tags/v${LIBDAQ_VERSION}.tar.gz
+tar -xvf v${LIBDAQ_VERSION}.tar.gz
+cd libdaq-${LIBDAQ_VERSION}
+print_step "Building" "libdaq..."
+./bootstrap && ./configure && make
+sudo checkinstall --pkgname=libdaq --pkgversion=${LIBDAQ_VERSION} --backup=no --deldoc=yes --fstrans=no --default
+sudo mv libdaq_${LIBDAQ_VERSION}-1_amd64.deb $WORK_DIR
+cd $WORK_DIR
+rm -rf v${LIBDAQ_VERSION}.tar.gz
+success_message "libdaq installed successfully."
 
 # Install libdnet
-install_library "libdnet" "${LIBDNET_VERSION}" "https://github.com/ofalk/libdnet/archive/refs/tags/libdnet-${LIBDNET_VERSION}.tar.gz"
+print_step "Downloading" "libdnet version ${LIBDNET_VERSION}..."
+wget https://github.com/ofalk/libdnet/archive/refs/tags/libdnet-${LIBDNET_VERSION}.tar.gz
+tar -xvf libdnet-${LIBDNET_VERSION}.tar.gz
+cd libdnet-libdnet-${LIBDNET_VERSION}
+print_step "Building" "libdnet..."
+./configure && make
+sudo checkinstall --pkgname=libdnet --pkgversion=${LIBDNET_VERSION} --backup=no --deldoc=yes --fstrans=no --default
+sudo mv libdnet_${LIBDNET_VERSION}-1_amd64.deb $WORK_DIR
+cd $WORK_DIR
+rm -rf libdnet-${LIBDNET_VERSION} libdnet-${LIBDNET_VERSION}.tar.gz
+success_message "libdnet installed successfully."
 
 # Install Flex
-install_library "flex" "${FLEX_VERSION}" "https://github.com/westes/flex/releases/download/v${FLEX_VERSION}/flex-${FLEX_VERSION}.tar.gz"
+print_step "Downloading" "Flex version ${FLEX_VERSION}..."
+wget https://github.com/westes/flex/releases/download/v${FLEX_VERSION}/flex-${FLEX_VERSION}.tar.gz
+tar -xvf flex-${FLEX_VERSION}.tar.gz
+cd flex-${FLEX_VERSION}
+print_step "Building" "Flex..."
+./configure && make
+sudo checkinstall --pkgname=flex --pkgversion=${FLEX_VERSION} --backup=no --deldoc=yes --fstrans=no --default
+sudo mv flex_${FLEX_VERSION}-1_amd64.deb $WORK_DIR
+cd $WORK_DIR
+rm -rf flex-${FLEX_VERSION} flex-${FLEX_VERSION}.tar.gz
+success_message "Flex installed successfully."
 
 # Install hwloc
-install_library "hwloc" "${HWLOC_VERSION}" "https://download.open-mpi.org/release/hwloc/v2.5/hwloc-${HWLOC_VERSION}.tar.gz"
-
-print_step "Installing" "LuaJIT..."
-# Install LuaJIT
+print_step "Downloading" "hwloc version ${HWLOC_VERSION}..."
+wget https://download.open-mpi.org/release/hwloc/v2.5/hwloc-${HWLOC_VERSION}.tar.gz
+tar -xvf hwloc-${HWLOC_VERSION}.tar.gz
+cd hwloc-${HWLOC_VERSION}
+print_step "Building" "hwloc..."
+./configure && make
+sudo checkinstall --pkgname=hwloc --pkgversion=${HWLOC_VERSION} --backup=no --deldoc=yes --fstrans=no --default
+sudo mv hwloc_${HWLOC_VERSION}-1_amd64.deb $WORK_DIR
 cd $WORK_DIR
+rm -rf hwloc-${HWLOC_VERSION} hwloc-${HWLOC_VERSION}.tar.gz
+success_message "hwloc installed successfully."
+
+# Install LuaJIT with update
+cd $WORK_DIR
+print_step "Cloning" "LuaJIT..."
 git clone https://luajit.org/git/luajit.git
 cd luajit
+print_step "Building" "LuaJIT..."
 make
 sudo checkinstall --pkgname=luajit --pkgversion=2.1.0 --backup=no --deldoc=yes --fstrans=no --default
 sudo mv luajit_2.1.0-1_amd64.deb $WORK_DIR
 cd $WORK_DIR
 rm -rf luajit
-
 success_message "LuaJIT installed successfully."
 
 # Install PCRE
-install_library "pcre" "${PCRE_VERSION}" "https://sourceforge.net/projects/pcre/files/pcre/${PCRE_VERSION}/pcre-${PCRE_VERSION}.tar.gz"
+print_step "Downloading" "PCRE version ${PCRE_VERSION}..."
+wget https://sourceforge.net/projects/pcre/files/pcre/${PCRE_VERSION}/pcre-${PCRE_VERSION}.tar.gz
+tar -xvf pcre-${PCRE_VERSION}.tar.gz
+cd pcre-${PCRE_VERSION}
+print_step "Building" "PCRE..."
+./configure && make
+sudo checkinstall --pkgname=pcre --pkgversion=${PCRE_VERSION} --backup=no --deldoc=yes --fstrans=no --default
+sudo mv pcre_${PCRE_VERSION}-1_amd64.deb $WORK_DIR
+cd $WORK_DIR
+rm -rf pcre-${PCRE_VERSION} pcre-${PCRE_VERSION}.tar.gz
+success_message "PCRE installed successfully."
 
 # Install zlib
-install_library "zlib" "${ZLIB_VERSION}" "https://github.com/madler/zlib/releases/download/v${ZLIB_VERSION}/zlib-${ZLIB_VERSION}.tar.gz"
+print_step "Downloading" "zlib version ${ZLIB_VERSION}..."
+wget https://github.com/madler/zlib/releases/download/v${ZLIB_VERSION}/zlib-${ZLIB_VERSION}.tar.gz
+tar -xvf zlib-${ZLIB_VERSION}.tar.gz
+cd zlib-${ZLIB_VERSION}
+print_step "Building" "zlib..."
+./configure && make
+sudo checkinstall --pkgname=zlib --pkgversion=${ZLIB_VERSION} --backup=no --deldoc=yes --fstrans=no --default
+sudo mv zlib_${ZLIB_VERSION}-1_amd64.deb $WORK_DIR
+cd $WORK_DIR
+rm -rf zlib-${ZLIB_VERSION} zlib-${ZLIB_VERSION}.tar.gz
+success_message "zlib installed successfully."
 
-print_step "Installing" "Snort 3..."
 # Install Snort 3
+print_step "Downloading" "Snort 3 version ${SNORT_VER}..."
 wget https://github.com/snort3/snort3/archive/refs/tags/${SNORT_VER}.tar.gz
 tar -xvf ${SNORT_VER}.tar.gz
 cd snort3-${SNORT_VER}
 export my_path=/usr/local
+print_step "Configuring" "Snort 3..."
 ./configure_cmake.sh --prefix=$my_path
 cd build
+print_step "Building" "Snort 3..."
 make -j$(nproc)
 sudo checkinstall --pkgname=snort3 --pkgversion=${SNORT_VER} --backup=no --deldoc=yes --fstrans=no --default
 sudo mv snort3_${SNORT_VER}-1_amd64.deb $WORK_DIR
 
 cd $WORK_DIR
 rm -rf snort3-${SNORT_VER} ${SNORT_VER}.tar.gz
-
 success_message "Snort 3 installed successfully."
 
-print_step "Creating" "Snort user and group..."
 # Create Snort user and group
+print_step "Creating" "Snort user and group..."
 sudo groupadd snort
 sudo useradd -r -s /sbin/nologin -g snort snort
-success_message "Snort user and group created."
 
-print_step "Setting permissions" "For Snort log directory..."
 # Set permissions for Snort log directory
+print_step "Setting permissions" "for Snort log directory..."
 sudo mkdir -p /var/log/snort
 sudo chown -R snort:snort /var/log/snort
 sudo chmod 750 /var/log/snort
-success_message "Permissions set for Snort log directory."
+success_message "Permissions set successfully."
 
-print_step "Granting" "Network packet capture privileges to Snort binary..."
 # Grant network packet capture privileges to Snort binary
+print_step "Granting privileges" "to Snort binary..."
 sudo setcap cap_net_raw,cap_net_admin=eip /usr/local/bin/snort
-success_message "Privileges granted."
 
 # Get the main network interface
+print_step "Determining" "the main network interface..."
 MAIN_INTERFACE=$(ip route | grep default | awk '{print $5}')
 
 # Check if the interface was found
@@ -209,12 +255,11 @@ if [[ -z "$MAIN_INTERFACE" ]]; then
     exit 1
 fi
 
-info_message "Main network interface: $MAIN_INTERFACE"
+success_message "Main network interface: $MAIN_INTERFACE"
 
-print_step "Configuring" "Main network interface to promiscuous mode..."
 # Set the interface to promiscuous mode
+print_step "Setting" "the interface to promiscuous mode..."
 sudo ip link set $MAIN_INTERFACE promisc on
-success_message "Promiscuous mode set for $MAIN_INTERFACE."
 
 # Paths and variables
 SNORT_CONFIG="/usr/local/etc/snort/snort.lua" 
@@ -222,8 +267,8 @@ SNORT_BIN="/usr/local/bin/snort"
 LOG_DIR="/var/log/snort"
 SERVICE_FILE="/etc/systemd/system/snort.service"
 
-print_step "Creating" "Snort service file..."
 # Create the Snort service file
+print_step "Creating" "Snort service file..."
 cat <<EOL | sudo tee $SERVICE_FILE
 [Unit]
 Description=Snort 3 Intrusion Detection System
@@ -240,19 +285,16 @@ Restart=on-failure
 WantedBy=multi-user.target
 EOL
 
-success_message "Snort service file created."
-
-print_step "Reloading" "Systemd services..."
 # Reload systemd services
+print_step "Reloading" "systemd services..."
 sudo systemctl daemon-reload
 
-print_step "Enabling" "Snort service to start on boot..."
 # Enable the Snort service to start on boot
+print_step "Enabling" "Snort service to start on boot..."
 sudo systemctl enable snort.service
 
+# Start the Snort service
 print_step "Starting" "Snort service..."
-# Start
 sudo systemctl start snort.service
 
-success_message "Snort service started successfully."
-
+success_message "Snort 3 service created and started successfully."
