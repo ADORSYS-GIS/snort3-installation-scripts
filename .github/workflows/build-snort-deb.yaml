@@ -3,7 +3,7 @@ name: Build and Package Snort 3
 on:
   push:
     branches:
-      - main
+      - dev
   pull_request:
     branches:
       - main
