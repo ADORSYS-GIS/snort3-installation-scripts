@@ -263,8 +263,8 @@ sudo ip link set $MAIN_INTERFACE promisc on
 
 # Paths and variables
 SNORT_CONFIG="/usr/local/etc/snort/snort_defaults.lua" 
-SNORT_BIN="/usr/local/bin/snort/" 
-LOG_DIR="/var/log/snort"
+SNORT_BIN="/usr/local/bin/snort" 
+LOG_DIR="/var/log/snort/"
 SERVICE_FILE="/etc/systemd/system/snort.service"
 
 # Create the Snort service file
