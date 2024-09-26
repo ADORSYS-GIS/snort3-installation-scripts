@@ -33,7 +33,7 @@ jobs:
       - name: Build and Package Snort 3
         run: |
           ARCH=${{ matrix.arch }}
-          sudo  bash ./build/build.sh
+          sudo bash ./build/build.sh
           mkdir -p /work/packages/$ARCH
           mv /work/*.deb /work/packages/$ARCH/
 
