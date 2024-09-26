@@ -33,7 +33,7 @@ Before running the installation script, ensure that `git` is installed on your s
    Alternatively, you can run the installation script directly from the repository:
 
    ```bash
-   sudo curl -sl https://raw.githubusercontent.com/bengo237/snort3-intall-script/refs/heads/main/install-snort3.sh | bash
+   sudo curl -sl https://raw.githubusercontent.com/bengo237/snort3-installation-scripts/refs/heads/main/install-snort3.sh | bash
    ```
 
    This script will:
@@ -61,7 +61,7 @@ To completely uninstall Snort3 and remove all configurations, you can run the un
    Alternatively, you can run the uninstallation script directly from the repository:
 
    ```bash
-   sudo curl -sl https://raw.githubusercontent.com/bengo237/snort3-intall-script/refs/heads/main/uninstall-snort3.sh | bash
+   sudo curl -sl https://raw.githubusercontent.com/bengo237/snort3-installation-scripts/refs/heads/main/uninstall-snort3.sh | bash
    ```
 
    This script will:
