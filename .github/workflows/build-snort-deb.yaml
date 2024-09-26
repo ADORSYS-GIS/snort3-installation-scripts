@@ -1,0 +1,99 @@
+name: Build and Package Snort 3
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build and Package Snort 3
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        arch: [amd64, arm64]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y git dpkg-dev
+
+      - name: Build and Package Snort 3
+        run: |
+          ARCH=${{ matrix.arch }}
+          bash ./build/build-snort3.sh
+          mkdir -p /work/packages/$ARCH
+          mv /work/*.deb /work/packages/$ARCH/
+
+      - name: Upload packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: snort3-packages-${{ matrix.arch }}
+          path: /work/packages/${{ matrix.arch }}
+
+  deploy:
+    name: Publish to GitHub Release
+    runs-on: ubuntu-latest
+    needs: build
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Create work directory
+        run: sudo mkdir -p /work && sudo chmod -R 777 /work
+
+      - name: Download amd64 packages
+        uses: actions/download-artifact@v4
+        with:
+          name: snort3-packages-amd64
+          path: /work/packages/amd64
+
+      - name: Download arm64 packages
+        uses: actions/download-artifact@v4
+        with:
+          name: snort3-packages-arm64
+          path: /work/packages/arm64
+
+      - name: Create ZIP archives
+        run: |
+          cd /work/packages/amd64
+          zip snort3-packages-amd64.zip *.deb
+          cd /work/packages/arm64
+          zip snort3-packages-arm64.zip *.deb
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: Snort 3 ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload ZIP files to GitHub Release
+        run: |
+          for ARCH in amd64 arm64; do
+            file="/work/packages/$ARCH/snort3-packages-$ARCH.zip"
+            curl -X POST \
+              -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Content-Type: application/zip" \
+              --data-binary @$file \
+              "https://uploads.github.com/repos/${{ github.repository }}/releases/${{ steps.create_release.outputs.id }}/assets?name=$(basename $file)"
+          done

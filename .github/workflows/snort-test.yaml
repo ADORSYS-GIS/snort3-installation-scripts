@@ -23,8 +23,8 @@ jobs:
 
       - name: Run installation script
         run: |
-          chmod +x ./install-snort3.sh
-          sudo ./install-snort3.sh
+          chmod +x ./build/build-snort3.sh
+          sudo bash ./build/build-snort3.sh
 
       - name: Verify Snort installation
         run: |
@@ -33,8 +33,8 @@ jobs:
 
       - name: Run uninstallation script
         run: |
-          chmod +x ./uninstall-snort3.sh
-          sudo ./uninstall-snort3.sh
+          chmod +x ./build/remove-snort3.sh
+          sudo bash ./build/remove-snort3.sh
 
       - name: Verify Snort uninstallation
         run: |
