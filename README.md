@@ -30,7 +30,7 @@ For example, to install a different version of Snort, you can run:
 
 ```bash
 export SNORT_VER=3.1.0.0
-sudo ./install-snort3.sh
+sudo ./build/build.sh
 ```
 
 ## Installation
