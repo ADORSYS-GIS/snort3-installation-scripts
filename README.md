@@ -1,5 +1,5 @@
 [![Snort 3 Installation and Uninstallation Test](https://github.com/bengo237/snort3-intall-script/actions/workflows/snort-test.yaml/badge.svg)](https://github.com/bengo237/snort3-intall-script/actions/workflows/snort-test.yaml)
-# Snort3 Installation and Uninstallation Script for Linux
+# Automation of Snort3 Installation and Uninstallation for Linux
 
 This repository contains a Bash scripts that automates the process of installing, configuring, and uninstalling Snort3 on a Linux system. Snort is an open-source network intrusion prevention system (NIPS) and network intrusion detection system (NIDS) capable of performing real-time traffic analysis and packet logging.
 
@@ -19,8 +19,8 @@ Before running the installation script, ensure that `git` is installed on your s
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/bengo237/snort3-install-script.git
-   cd snort3-install-script
+   git clone https://github.com/bengo237/snort3-installation-scripts.git
+   cd snort3-installation-scripts
    ```
 
 2. Make the installation script executable and run it:
@@ -28,6 +28,12 @@ Before running the installation script, ensure that `git` is installed on your s
    ```bash
    chmod +x ./install-snort3.sh
    sudo ./install-snort3.sh
+   ```
+
+   Alternatively, you can run the installation script directly from the repository:
+
+   ```bash
+   sudo curl -sl https://raw.githubusercontent.com/bengo237/snort3-installation-scripts/main/install-snort3.sh | bash
    ```
 
    This script will:
@@ -50,6 +56,12 @@ To completely uninstall Snort3 and remove all configurations, you can run the un
    ```bash
    chmod +x ./uninstall-snort3.sh
    sudo ./uninstall-snort3.sh
+   ```
+
+   Alternatively, you can run the uninstallation script directly from the repository:
+
+   ```bash
+   sudo curl -sl https://raw.githubusercontent.com/bengo237/snort3-installation-scripts/main/uninstall-snort3.sh | bash
    ```
 
    This script will:
@@ -78,7 +90,6 @@ You can specify the versions of the dependencies and Snort3 that you want to ins
 - `PCRE_VERSION=8.45`
 - `ZLIB_VERSION=1.2.13`
 - `SNORT_VER=3.3.1.0`
-
 
 For example, to install a different version of Snort, you can run:
 

@@ -238,7 +238,7 @@ sudo useradd -r -s /sbin/nologin -g snort snort
 print_step "Setting permissions" "for Snort log directory..."
 sudo mkdir -p /var/log/snort
 sudo chown -R snort:snort /var/log/snort
-sudo chmod 750 /var/log/snort
+sudo chmod 755 /var/log/snort
 success_message "Permissions set successfully."
 
 # Grant network packet capture privileges to Snort binary
@@ -262,9 +262,9 @@ print_step "Setting" "the interface to promiscuous mode..."
 sudo ip link set $MAIN_INTERFACE promisc on
 
 # Paths and variables
-SNORT_CONFIG="/usr/local/etc/snort/snort.lua" 
+SNORT_CONFIG="/usr/local/etc/snort/snort_defaults.lua" 
 SNORT_BIN="/usr/local/bin/snort" 
-LOG_DIR="/var/log/snort"
+LOG_DIR="/var/log/snort/"
 SERVICE_FILE="/etc/systemd/system/snort.service"
 
 # Create the Snort service file
