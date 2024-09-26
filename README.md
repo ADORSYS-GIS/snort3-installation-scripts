@@ -14,6 +14,25 @@ This repository contains Bash scripts that automates the process of installing, 
 
 Before running the installation script, ensure that `git` is installed on your system. Other necessary tools and libraries, such as `wget`, `gcc`, `cmake`, `libpcap-dev`, and additional dependencies required by Snort3, will be automatically installed by the script.
 
+## Version Customization
+
+You can specify the versions of the dependencies and Snort3 that you want to install by setting the following environment variables before running the installation script. The default versions are:
+
+- `LIBDAQ_VERSION=3.0.15`
+- `LIBDNET_VERSION=1.14`
+- `FLEX_VERSION=2.6.4`
+- `HWLOC_VERSION=2.5.0`
+- `PCRE_VERSION=8.45`
+- `ZLIB_VERSION=1.2.13`
+- `SNORT_VER=3.3.1.0`
+
+For example, to install a different version of Snort, you can run:
+
+```bash
+export SNORT_VER=3.1.0.0
+sudo ./install-snort3.sh
+```
+
 ## Installation
 
 1. Clone the repository:
@@ -30,7 +49,7 @@ Before running the installation script, ensure that `git` is installed on your s
    sudo ./install-snort3.sh
    ```
 
-   Alternatively, you can run the installation script directly from the repository:
+   **Alternatively**, you can run the installation script directly from the repository:
 
    ```bash
    sudo curl -sl https://raw.githubusercontent.com/bengo237/snort3-installation-scripts/main/install-snort3.sh | bash
@@ -58,7 +77,7 @@ To completely uninstall Snort3 and remove all configurations, you can run the un
    sudo ./uninstall-snort3.sh
    ```
 
-   Alternatively, you can run the uninstallation script directly from the repository:
+   **Alternatively**, you can run the uninstallation script directly from the repository:
 
    ```bash
    sudo curl -sl https://raw.githubusercontent.com/bengo237/snort3-installation-scripts/main/uninstall-snort3.sh | bash
@@ -79,24 +98,6 @@ To completely uninstall Snort3 and remove all configurations, you can run the un
    fi
    ```
 
-## Version Customization
-
-You can specify the versions of the dependencies and Snort3 that you want to install by setting the following environment variables before running the installation script. The default versions are:
-
-- `LIBDAQ_VERSION=3.0.15`
-- `LIBDNET_VERSION=1.14`
-- `FLEX_VERSION=2.6.4`
-- `HWLOC_VERSION=2.5.0`
-- `PCRE_VERSION=8.45`
-- `ZLIB_VERSION=1.2.13`
-- `SNORT_VER=3.3.1.0`
-
-For example, to install a different version of Snort, you can run:
-
-```bash
-export SNORT_VER=3.1.0.0
-sudo ./install-snort3.sh
-```
 
 ## Automated Testing with GitHub Actions
 
