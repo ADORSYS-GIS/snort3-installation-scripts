@@ -129,5 +129,17 @@ sudo apt-get remove --purge -y \
 info_message "Cleaning up residual files..."
 sudo apt-get autoremove -y
 sudo apt-get clean
+# Remove Snort configuration directory
+info_message "Removing Snort configuration directory..."
+if [ -d /usr/local/etc/snort ]; then
+    sudo rm -rf /usr/local/etc/snort
+    success_message "Snort configuration directory removed."
+fi
+
+# Clean up apt lists
+info_message "Cleaning up apt lists..."
+sudo rm -rf /var/lib/apt/lists/*
+success_message "Apt lists cleaned up."
+
 
 success_message "All actions have been successfully undone and cleaned up."
