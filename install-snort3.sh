@@ -1,3 +1,15 @@
+# This script automates the installation and configuration of Snort 3 on a Linux system.
+# It performs the following steps:
+# 1. Defines text formatting for log messages.
+# 2. Implements logging functions for different log levels (INFO, WARNING, ERROR, SUCCESS).
+# 3. Checks the system architecture (AMD64 or ARM64) and sets the appropriate download URL.
+# 4. Downloads, unzips, and installs Snort 3 packages.
+# 5. Creates a Snort user and group.
+# 6. Sets permissions for the Snort log directory.
+# 7. Grants network packet capture privileges to the Snort binary.
+# 8. Determines the main network interface and sets it to promiscuous mode.
+# 9. Creates a systemd service file for Snort 3.
+# 10. Reloads systemd services, enables the Snort service to start on boot, and starts the Snort service.
 #!/bin/bash
 
 # Define text formatting

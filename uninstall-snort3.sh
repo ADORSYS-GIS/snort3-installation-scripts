@@ -1,4 +1,23 @@
 #!/bin/bash
+#
+# This script uninstalls Snort 3 and its related packages from the system.
+# It performs the following steps:
+# 1. Defines text formatting for log messages.
+# 2. Provides logging functions with timestamp for different log levels (INFO, WARNING, ERROR, SUCCESS).
+# 3. Uninstalls Snort 3 and its dependencies if they are installed.
+# 4. Removes the Snort user and group.
+# 5. Deletes the Snort log directory.
+# 6. Removes Snort binary and configuration files.
+# 7. Revokes network packet capture privileges from the Snort binary.
+# 8. Disables promiscuous mode on the main network interface.
+# 9. Removes the Snort service file.
+# 10. Reloads systemd services.
+# 11. Stops and disables the Snort service.
+# 12. Cleans up temporary files related to Snort.
+# 
+# Usage:
+# Run this script with root privileges to ensure all operations are performed successfully.
+# Example: sudo ./uninstall-snort3.sh
 
 # Define text formatting
 RED='\033[0;31m'
