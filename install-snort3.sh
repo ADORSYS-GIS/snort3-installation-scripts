@@ -84,8 +84,6 @@ done
 # Check system architecture
 ARCH=$(uname -m)
 
-# Configure library path
-configure_library_path
 
 # Set URLs for AMD64 and ARM64
 URL_AMD64="https://github.com/bengo237/snort3-installation-scripts/releases/download/main/snort3-packages-amd64.zip"
@@ -137,6 +135,9 @@ success_message "Permissions set successfully."
 print_step "Granting privileges" "to Snort binary..."
 sudo setcap cap_net_raw,cap_net_admin=eip /usr/local/bin/snort
 
+# Configure library path
+configure_library_path
+
 # Get the main network interface
 print_step "Determining" "the main network interface..."
 MAIN_INTERFACE=$(ip route | grep default | awk '{print $5}')
@@ -154,7 +155,7 @@ print_step "Setting" "the interface to promiscuous mode..."
 sudo ip link set $MAIN_INTERFACE promisc on
 
 # Paths and variables
-SNORT_CONFIG="/usr/local/etc/snort/snort_defaults.lua" 
+SNORT_CONFIG="/usr/local/etc/snort/snort.lua" 
 SNORT_BIN="/usr/local/bin/snort" 
 LOG_DIR="/var/log/snort/"
 SERVICE_FILE="/etc/systemd/system/snort.service"
