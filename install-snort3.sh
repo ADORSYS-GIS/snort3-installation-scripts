@@ -161,35 +161,10 @@ LOG_DIR="/var/log/snort/"
 
 # Define the content to add
 CONFIG_CONTENT='
----------------------------------------------------------------------------
-log_dir = "'$LOG_DIR'"
-
--- Fast logging
-alert_fast = {
-    file = true,
-    format = "fast",
-    filename = log_dir .. "/alert_fast.log"
+alert_fast = {file = true,
+packet = false,
+limit = 10,
 }
-
--- Full logging
-alert_full = {
-    file = true,
-    format = "full",
-    filename = log_dir .. "/alert_full.log"
-}
-
--- JSON logging
-alert_json = {
-    file = true,
-    format = "json",
-    filename = log_dir .. "/alert_json.log"
-}
-
--- Enable logging modules
-alert_fast.output = true
-alert_full.output = true
-alert_json.output = true
----------------------------------------------------------------------------
 '
 
 # Check if the file exists before appending the content
