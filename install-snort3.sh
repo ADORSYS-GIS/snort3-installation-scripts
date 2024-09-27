@@ -149,11 +149,9 @@ fi
 
 # Configure Snort logging
 print_step "Configuring" "Snort logging..."
-sudo tee -a $SNORT_CONFIG > /dev/null <<EOL
+# Define the content to add
+CONFIG_CONTENT='
 ---------------------------------------------------------------------------
--- Snort 3 Logging Configuration
----------------------------------------------------------------------------
-
 log_dir = "$LOG_DIR"
 
 -- Fast logging
@@ -181,9 +179,22 @@ alert_json = {
 alert_fast.output = true
 alert_full.output = true
 alert_json.output = true
-
 ---------------------------------------------------------------------------
-EOL
+'
+
+# Check if the file exists before appending the content
+if [ -f "$SNORT_CONFIG" ]; then
+    echo "Adding configuration to $SNORT_CONFIG..."
+    
+    # Append the content to the snort.lua file
+    echo "$CONFIG_CONTENT" >> "$SNORT_CONFIG"
+    
+    echo "Configuration added successfully!"
+else
+    echo "Error: $SNORT_CONFIG not found."
+    exit 1
+fi
+
 
 success_message "Snort logging configured successfully."
 
