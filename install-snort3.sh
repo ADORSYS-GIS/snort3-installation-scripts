@@ -51,8 +51,14 @@ print_step() {
     log "${BLUE}${BOLD}[STEP]${NORMAL}" "$1: $2"
 }
 
+# Install required packages
+info_message "Installing required packages..."
+sudo apt-get update
+sudo apt-get install curl unzip -y
+
 # Check system architecture
 ARCH=$(uname -m)
+
 
 # Set URLs for AMD64 and ARM64
 URL_AMD64="https://github.com/bengo237/snort3-installation-scripts/releases/download/main/snort3-packages-amd64.zip"
@@ -64,7 +70,7 @@ install_packages() {
     local temp_dir=$(mktemp -d)
 
     print_step "Downloading" "from $url ..."
-    wget -q "$url" -O "$temp_dir/packages.zip"
+    curl -sL "$url" -o "$temp_dir/packages.zip"
 
     print_step "Unzipping" "files ..."
     unzip -q "$temp_dir/packages.zip" -d "$temp_dir"
