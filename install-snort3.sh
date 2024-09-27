@@ -138,6 +138,54 @@ sudo setcap cap_net_raw,cap_net_admin=eip /usr/local/bin/snort
 # Configure library path
 configure_library_path
 
+# Create a Snort rule to detect ICMP traffic
+print_step "Creating" "Snort rule to detect ICMP traffic..."
+if [ ! -f /usr/local/etc/snort/local.rules ]; then
+    echo 'alert icmp any any -> any any ( msg:"ICMP Traffic Detected"; sid:10000001; metadata:policy security-ips alert; )' | sudo tee /usr/local/etc/snort/local.rules > /dev/null
+    success_message "ICMP detection rule created successfully."
+else
+    warn_message "ICMP detection rule already exists."
+fi
+
+# Configure Snort logging
+print_step "Configuring" "Snort logging..."
+sudo tee -a $SNORT_CONFIG > /dev/null <<EOL
+--------------------------------------------------
+-- Snort 3 Logging Configuration
+--------------------------------------------------
+log_dir = "$LOG_DIR"
+
+-- Fast logging
+alert_fast = {
+    file = true,
+    format = "fast",
+    filename = log_dir .. "/alert_fast.log"
+}
+
+-- Full logging
+alert_full = {
+    file = true,
+    format = "full",
+    filename = log_dir .. "/alert_full.log"
+}
+
+-- JSON logging
+alert_json = {
+    file = true,
+    format = "json",
+    filename = log_dir .. "/alert_json.log"
+}
+
+-- Enable logging modules
+alert_fast.output = true
+alert_full.output = true
+alert_json.output = true
+
+--------------------------------------------------
+EOL
+
+success_message "Snort logging configured successfully."
+
 # Get the main network interface
 print_step "Determining" "the main network interface..."
 MAIN_INTERFACE=$(ip route | grep default | awk '{print $5}')
@@ -169,7 +217,7 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart=$SNORT_BIN -c $SNORT_CONFIG -i $MAIN_INTERFACE -l $LOG_DIR
+ExecStart=$SNORT_BIN -c $SNORT_CONFIG -i $MAIN_INTERFACE -l $LOG_DIR 
 User=snort
 Group=snort
 Restart=on-failure
