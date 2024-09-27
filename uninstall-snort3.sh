@@ -137,12 +137,15 @@ sudo systemctl daemon-reload
 
 # Stop and disable the Snort service
 print_step "Stopping and disabling" "Snort service..."
+
 if systemctl list-units --full -all | grep -Fq 'snort.service'; then
-    sudo systemctl stop snort.service
-    sudo systemctl disable snort.service
+    sudo systemctl stop snort.service 2>/dev/null
+    sudo systemctl disable snort.service 2>/dev/null
+    success_message "Snort service stopped and disabled."
 else
-    warn_message "Snort service does not exist, skipping..."
+    warn_message "Snort service is not loaded or does not exist, skipping..."
 fi
+
 
 # Clean up temporary files (if any)
 print_step "Cleaning up" "temporary files..."
