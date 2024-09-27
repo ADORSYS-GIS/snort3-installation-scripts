@@ -48,23 +48,26 @@ sudo ./build/build.sh
    chmod +x ./install-snort3.sh
    sudo ./install-snort3.sh
    ```
+   This script will:
+   - Download and compile Snort3 from source.
+   - Install all necessary dependencies such as `libpcap`, `libdaq`, `pcre`, `zlib`, and more.
+   - Set up Snort as a `systemd` service for easy management.
 
-   **Alternatively**, you can run the installation script directly from the repository:
+
+  ### **Alternatively**
+  You can run the installation script directly from the repository:
 
    ```bash
    sudo curl -sl https://raw.githubusercontent.com/bengo237/snort3-installation-scripts/main/install-snort3.sh | bash
    ```
 
-   This script will:
-   - Download and compile Snort3 from source.
-   - Install all necessary dependencies such as `libpcap`, `libdaq`, `pcre`, `zlib`, and more.
-   - Set up Snort as a `systemd` service for easy management.
 
 3. Once the installation is complete, verify the installation by running:
 
    ```bash
    snort -V
    ```
+   ![alt text](./img/snort.png)
 
 ## Uninstallation
 
@@ -77,7 +80,8 @@ To completely uninstall Snort3 and remove all configurations, you can run the un
    sudo ./uninstall-snort3.sh
    ```
 
-   **Alternatively**, you can run the uninstallation script directly from the repository:
+   ### **Alternatively**
+   You can run the uninstallation script directly from the repository:
 
    ```bash
    sudo curl -sl https://raw.githubusercontent.com/bengo237/snort3-installation-scripts/main/uninstall-snort3.sh | bash
