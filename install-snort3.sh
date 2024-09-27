@@ -150,9 +150,10 @@ fi
 # Configure Snort logging
 print_step "Configuring" "Snort logging..."
 sudo tee -a $SNORT_CONFIG > /dev/null <<EOL
---------------------------------------------------
+---------------------------------------------------------------------------
 -- Snort 3 Logging Configuration
---------------------------------------------------
+---------------------------------------------------------------------------
+
 log_dir = "$LOG_DIR"
 
 -- Fast logging
@@ -181,7 +182,7 @@ alert_fast.output = true
 alert_full.output = true
 alert_json.output = true
 
---------------------------------------------------
+---------------------------------------------------------------------------
 EOL
 
 success_message "Snort logging configured successfully."
