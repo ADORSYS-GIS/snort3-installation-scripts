@@ -135,7 +135,7 @@ fi
 print_step "Setting permissions" "for Snort log directory..."
 sudo mkdir -p /var/log/snort
 sudo chown -R snort:snort /var/log/snort
-sudo chmod 755 /var/log/snort
+sudo chmod -R 5755 /var/log/snort
 success_message "Permissions set successfully."
 
 # Grant network packet capture privileges to Snort binary
