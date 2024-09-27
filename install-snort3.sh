@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # This script installs and configures Snort 3 on a Debian-based system.
 # It performs the following steps:
 # 1. Defines text formatting for log messages.
@@ -12,6 +14,7 @@
 # 10. Creates a systemd service file for Snort.
 # 11. Reloads systemd services and enables the Snort service to start on boot.
 # 12. Starts the Snort service.
+
 # Define text formatting
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -60,7 +63,6 @@ configure_library_path() {
     success_message "Library path configured successfully."
 }
 
-
 # Function to check if a package is installed
 is_installed() {
     dpkg -l | grep -q "$1"
@@ -84,7 +86,6 @@ done
 # Check system architecture
 ARCH=$(uname -m)
 
-
 # Set URLs for AMD64 and ARM64
 URL_AMD64="https://github.com/bengo237/snort3-installation-scripts/releases/download/main/snort3-packages-amd64.zip"
 URL_ARM64="https://github.com/bengo237/snort3-installation-scripts/releases/download/main/snort3-packages-arm64.zip"
@@ -92,7 +93,8 @@ URL_ARM64="https://github.com/bengo237/snort3-installation-scripts/releases/down
 # Function to download, unzip, and install .deb files
 install_packages() {
     local url=$1
-    local temp_dir=$(mktemp -d)
+    local temp_dir
+    temp_dir=$(mktemp -d)
 
     print_step "Downloading" "from $url ..."
     curl -sL "$url" -o "$temp_dir/packages.zip"
@@ -121,14 +123,19 @@ fi
 
 # Create Snort user and group
 print_step "Creating" "Snort user and group..."
-sudo groupadd snort
-sudo useradd -r -s /sbin/nologin -g snort snort
+if ! id snort &>/dev/null; then
+    sudo groupadd snort
+    sudo useradd -r -s /sbin/nologin -g snort snort
+    success_message "Snort user and group created successfully."
+else
+    success_message "Snort user and group already exist."
+fi
 
 # Set permissions for Snort log directory
 print_step "Setting permissions" "for Snort log directory..."
 sudo mkdir -p /var/log/snort
 sudo chown -R snort:snort /var/log/snort
-sudo chmod 755 /var/log/snort
+sudo chmod -R 5755 /var/log/snort
 success_message "Permissions set successfully."
 
 # Grant network packet capture privileges to Snort binary
@@ -137,6 +144,43 @@ sudo setcap cap_net_raw,cap_net_admin=eip /usr/local/bin/snort
 
 # Configure library path
 configure_library_path
+
+# Create a Snort rule to detect ICMP traffic
+print_step "Creating" "Snort rule to detect ICMP traffic..."
+if [ ! -f /usr/local/etc/snort/local.rules ]; then
+    echo 'alert icmp any any -> any any ( msg:"ICMP Traffic Detected"; sid:10000001; metadata:policy security-ips alert; )' | sudo tee /usr/local/etc/snort/local.rules > /dev/null
+    success_message "ICMP detection rule created successfully."
+else
+    warn_message "ICMP detection rule already exists."
+fi
+
+# Configure Snort logging
+print_step "Configuring" "Snort logging..."
+SNORT_CONFIG="/usr/local/etc/snort/snort.lua" 
+LOG_DIR="/var/log/snort"
+
+# Define the content to add
+CONFIG_CONTENT='
+alert_fast = {file = true,
+packet = false,
+limit = 10,
+}
+'
+
+# Check if the file exists before appending the content
+if [ -f "$SNORT_CONFIG" ]; then
+    echo "Adding configuration to $SNORT_CONFIG..."
+    
+    # Append the content to the snort.lua file
+    echo "$CONFIG_CONTENT" | sudo tee -a "$SNORT_CONFIG" > /dev/null
+    
+    success_message "Configuration added successfully!"
+else
+    error_message "Error: $SNORT_CONFIG not found."
+    exit 1
+fi
+
+success_message "Snort logging configured successfully."
 
 # Get the main network interface
 print_step "Determining" "the main network interface..."
@@ -152,28 +196,24 @@ success_message "Main network interface: $MAIN_INTERFACE"
 
 # Set the interface to promiscuous mode
 print_step "Setting" "the interface to promiscuous mode..."
-sudo ip link set $MAIN_INTERFACE promisc on
+sudo ip link set "$MAIN_INTERFACE" promisc on
 
 # Paths and variables
-SNORT_CONFIG="/usr/local/etc/snort/snort.lua" 
-SNORT_BIN="/usr/local/bin/snort" 
-LOG_DIR="/var/log/snort/"
+SNORT_BIN="/usr/local/bin/snort"
 SERVICE_FILE="/etc/systemd/system/snort.service"
 
 # Create the Snort service file
 print_step "Creating" "Snort service file..."
-cat <<EOL | sudo tee $SERVICE_FILE
+cat <<EOL | sudo tee "$SERVICE_FILE"
 [Unit]
 Description=Snort 3 Intrusion Detection System
-After=network.target
+After=syslog.target network.target
 
 [Service]
 Type=simple
-ExecStart=$SNORT_BIN -c $SNORT_CONFIG -i $MAIN_INTERFACE -l $LOG_DIR
-User=snort
-Group=snort
+ExecStart=$SNORT_BIN -c $SNORT_CONFIG -i $MAIN_INTERFACE -s 65535 -k none -l $LOG_DIR -R /usr/local/etc/snort/local.rules -D -u snort -g snort -m 0x1b --create-pidfile
+ExecStop=/bin/kill -9 $MAINPID
 Restart=on-failure
-
 [Install]
 WantedBy=multi-user.target
 EOL
