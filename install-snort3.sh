@@ -157,7 +157,7 @@ fi
 # Configure Snort logging
 print_step "Configuring" "Snort logging..."
 SNORT_CONFIG="/usr/local/etc/snort/snort.lua" 
-LOG_DIR="/var/log/snort/"
+LOG_DIR="/var/log/snort"
 
 # Define the content to add
 CONFIG_CONTENT='
@@ -211,7 +211,7 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart=$SNORT_BIN -c $SNORT_CONFIG -i $MAIN_INTERFACE -l $LOG_DIR 
+ExecStart=$SNORT_BIN -c $SNORT_CONFIG -i $MAIN_INTERFACE -l $LOG_DIR -R /usr/local/etc/snort/local.rules
 User=snort
 Group=snort
 Restart=on-failure
