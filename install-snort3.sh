@@ -207,15 +207,13 @@ print_step "Creating" "Snort service file..."
 cat <<EOL | sudo tee "$SERVICE_FILE"
 [Unit]
 Description=Snort 3 Intrusion Detection System
-After=network.target
+After=syslog.target network.target
 
 [Service]
 Type=simple
-ExecStart=$SNORT_BIN -c $SNORT_CONFIG -i $MAIN_INTERFACE -l $LOG_DIR -R /usr/local/etc/snort/local.rules
-User=snort
-Group=snort
+ExecStart=$SNORT_BIN -c $SNORT_CONFIG -i $MAIN_INTERFACE -s 65535 -k none -l $LOG_DIR -R /usr/local/etc/snort/local.rules -D -u snort -g snort -m 0x1b --create-pidfile
+ExecStop=/bin/kill -9 $MAINPID
 Restart=on-failure
-
 [Install]
 WantedBy=multi-user.target
 EOL
