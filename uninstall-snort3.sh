@@ -1,23 +1,4 @@
 #!/bin/bash
-#
-# This script uninstalls Snort 3 and its related packages from the system.
-# It performs the following steps:
-# 1. Defines text formatting for log messages.
-# 2. Provides logging functions with timestamp for different log levels (INFO, WARNING, ERROR, SUCCESS).
-# 3. Uninstalls Snort 3 and its dependencies if they are installed.
-# 4. Removes the Snort user and group.
-# 5. Deletes the Snort log directory.
-# 6. Removes Snort binary and configuration files.
-# 7. Revokes network packet capture privileges from the Snort binary.
-# 8. Disables promiscuous mode on the main network interface.
-# 9. Removes the Snort service file.
-# 10. Reloads systemd services.
-# 11. Stops and disables the Snort service.
-# 12. Cleans up temporary files related to Snort.
-# 
-# Usage:
-# Run this script with root privileges to ensure all operations are performed successfully.
-# Example: sudo ./uninstall-snort3.sh
 
 # Define text formatting
 RED='\033[0;31m'
@@ -58,6 +39,10 @@ print_step() {
     log "${BLUE}${BOLD}[STEP]${NORMAL}" "$1: $2"
 }
 
+# Fix broken dependencies
+print_step "Fixing" "broken dependencies..."
+sudo apt --fix-broken install -y
+
 # Uninstall Snort and dependencies
 print_step "Uninstalling" "Snort and related packages..."
 
@@ -67,6 +52,7 @@ PACKAGES=(
     "libdnet"
     "luajit"
     "pcre"
+    "libfl-dev"
     "flex"
     "hwloc"
     "zlib"
@@ -75,42 +61,75 @@ PACKAGES=(
 for package in "${PACKAGES[@]}"; do
     if dpkg -l | grep -q "$package"; then
         print_step "Removing" "$package..."
-        sudo dpkg --remove "$package"
+        sudo apt-get remove --purge -y "$package"
     else
         warn_message "$package is not installed, skipping..."
     fi
 done
 
 # Remove Snort user and group
+print_step "Stopping" "Snort processes..."
+sudo pkill -u snort
+
 print_step "Removing" "Snort user and group..."
-sudo userdel -r snort
-sudo groupdel snort
+if id "snort" &>/dev/null; then
+    sudo userdel -r snort
+else
+    warn_message "Snort user does not exist, skipping..."
+fi
+
+if getent group snort &>/dev/null; then
+    sudo groupdel snort
+else
+    warn_message "Snort group does not exist, skipping..."
+fi
 
 # Remove Snort log directory
 print_step "Removing" "Snort log directory..."
-sudo rm -rf /var/log/snort
+if [ -d /var/log/snort ]; then
+    sudo rm -rf /var/log/snort
+else
+    warn_message "Snort log directory does not exist, skipping..."
+fi
 
 # Remove Snort binary and configuration
 print_step "Removing" "Snort binary and configuration..."
-sudo rm -f /usr/local/bin/snort
-sudo rm -f /usr/local/etc/snort/snort_defaults.lua
+if [ -f /usr/local/bin/snort ]; then
+    sudo rm -f /usr/local/bin/snort
+else
+    warn_message "Snort binary does not exist, skipping..."
+fi
+
+if [ -f /usr/local/etc/snort/snort_defaults.lua ]; then
+    sudo rm -f /usr/local/etc/snort/snort_defaults.lua
+else
+    warn_message "Snort configuration file does not exist, skipping..."
+fi
 
 # Revoke network packet capture privileges from Snort binary
 print_step "Revoking privileges" "from Snort binary..."
-sudo setcap -r /usr/local/bin/snort
+if [ -f /usr/local/bin/snort ]; then
+    sudo setcap -r /usr/local/bin/snort
+else
+    warn_message "Snort binary does not exist, skipping privilege revocation..."
+fi
 
 # Disable promiscuous mode on the main network interface
 print_step "Disabling" "promiscuous mode on the network interface..."
 MAIN_INTERFACE=$(ip route | grep default | awk '{print $5}')
 if [[ -n "$MAIN_INTERFACE" ]]; then
-    sudo ip link set $MAIN_INTERFACE promisc off
+    sudo ip link set "$MAIN_INTERFACE" promisc off
 else
     warn_message "Unable to determine the main network interface, skipping promiscuous mode reset."
 fi
 
 # Remove the Snort service file
 print_step "Removing" "Snort service file..."
-sudo rm -f /etc/systemd/system/snort.service
+if [ -f /etc/systemd/system/snort.service ]; then
+    sudo rm -f /etc/systemd/system/snort.service
+else
+    warn_message "Snort service file does not exist, skipping..."
+fi
 
 # Reload systemd services
 print_step "Reloading" "systemd services..."
@@ -118,8 +137,15 @@ sudo systemctl daemon-reload
 
 # Stop and disable the Snort service
 print_step "Stopping and disabling" "Snort service..."
-sudo systemctl stop snort.service
-sudo systemctl disable snort.service
+
+if systemctl list-units --full -all | grep -Fq 'snort.service'; then
+    sudo systemctl stop snort.service 2>/dev/null
+    sudo systemctl disable snort.service 2>/dev/null
+    success_message "Snort service stopped and disabled."
+else
+    warn_message "Snort service is not loaded or does not exist, skipping..."
+fi
+
 
 # Clean up temporary files (if any)
 print_step "Cleaning up" "temporary files..."

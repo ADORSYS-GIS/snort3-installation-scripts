@@ -1,17 +1,17 @@
-# This script automates the installation and configuration of Snort 3 on a Linux system.
+# This script installs and configures Snort 3 on a Debian-based system.
 # It performs the following steps:
 # 1. Defines text formatting for log messages.
-# 2. Implements logging functions for different log levels (INFO, WARNING, ERROR, SUCCESS).
-# 3. Checks the system architecture (AMD64 or ARM64) and sets the appropriate download URL.
-# 4. Downloads, unzips, and installs Snort 3 packages.
-# 5. Creates a Snort user and group.
-# 6. Sets permissions for the Snort log directory.
-# 7. Grants network packet capture privileges to the Snort binary.
-# 8. Determines the main network interface and sets it to promiscuous mode.
-# 9. Creates a systemd service file for Snort 3.
-# 10. Reloads systemd services, enables the Snort service to start on boot, and starts the Snort service.
-#!/bin/bash
-
+# 2. Defines logging functions with timestamp.
+# 3. Checks and installs required packages (curl and unzip).
+# 4. Configures the library path for Snort.
+# 5. Downloads, unzips, and installs Snort packages based on system architecture (AMD64 or ARM64).
+# 6. Creates a Snort user and group.
+# 7. Sets permissions for the Snort log directory.
+# 8. Grants network packet capture privileges to the Snort binary.
+# 9. Determines the main network interface and sets it to promiscuous mode.
+# 10. Creates a systemd service file for Snort.
+# 11. Reloads systemd services and enables the Snort service to start on boot.
+# 12. Starts the Snort service.
 # Define text formatting
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -51,8 +51,39 @@ print_step() {
     log "${BLUE}${BOLD}[STEP]${NORMAL}" "$1: $2"
 }
 
+# Function to configure library path
+configure_library_path() {
+    print_step "Configuring" "library path"
+    echo "/usr/local/lib" | sudo tee /etc/ld.so.conf.d/snort.conf
+    sudo ldconfig
+    export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+    success_message "Library path configured successfully."
+}
+
+
+# Function to check if a package is installed
+is_installed() {
+    dpkg -l | grep -q "$1"
+}
+
+# Install required packages if not already installed
+info_message "Checking and installing required packages..."
+
+REQUIRED_PACKAGES=("curl" "unzip")
+
+for package in "${REQUIRED_PACKAGES[@]}"; do
+    if is_installed "$package"; then
+        info_message "$package is already installed."
+    else
+        info_message "Installing $package..."
+        sudo apt-get update
+        sudo apt-get install -y "$package"
+    fi
+done
+
 # Check system architecture
 ARCH=$(uname -m)
+
 
 # Set URLs for AMD64 and ARM64
 URL_AMD64="https://github.com/bengo237/snort3-installation-scripts/releases/download/main/snort3-packages-amd64.zip"
@@ -64,7 +95,7 @@ install_packages() {
     local temp_dir=$(mktemp -d)
 
     print_step "Downloading" "from $url ..."
-    wget -q "$url" -O "$temp_dir/packages.zip"
+    curl -sL "$url" -o "$temp_dir/packages.zip"
 
     print_step "Unzipping" "files ..."
     unzip -q "$temp_dir/packages.zip" -d "$temp_dir"
@@ -104,6 +135,9 @@ success_message "Permissions set successfully."
 print_step "Granting privileges" "to Snort binary..."
 sudo setcap cap_net_raw,cap_net_admin=eip /usr/local/bin/snort
 
+# Configure library path
+configure_library_path
+
 # Get the main network interface
 print_step "Determining" "the main network interface..."
 MAIN_INTERFACE=$(ip route | grep default | awk '{print $5}')
@@ -121,7 +155,7 @@ print_step "Setting" "the interface to promiscuous mode..."
 sudo ip link set $MAIN_INTERFACE promisc on
 
 # Paths and variables
-SNORT_CONFIG="/usr/local/etc/snort/snort_defaults.lua" 
+SNORT_CONFIG="/usr/local/etc/snort/snort.lua" 
 SNORT_BIN="/usr/local/bin/snort" 
 LOG_DIR="/var/log/snort/"
 SERVICE_FILE="/etc/systemd/system/snort.service"
