@@ -87,8 +87,8 @@ done
 ARCH=$(uname -m)
 
 # Set URLs for AMD64 and ARM64
-URL_AMD64="https://github.com/bengo237/snort3-installation-scripts/releases/download/main/snort3-packages-amd64.zip"
-URL_ARM64="https://github.com/bengo237/snort3-installation-scripts/releases/download/main/snort3-packages-arm64.zip"
+URL_AMD64="https://github.com/adorsys-gis/snort3-installation-scripts/releases/download/main/snort3-packages-amd64.zip"
+URL_ARM64="https://github.com/adorsys-gis/snort3-installation-scripts/releases/download/main/snort3-packages-arm64.zip"
 
 # Function to download, unzip, and install .deb files
 install_packages() {
