@@ -1,4 +1,4 @@
-[![Build and Package Snort 3](https://github.com/bengo237/snort3-installation-scripts/actions/workflows/build-snort-deb.yaml/badge.svg)](https://github.com/bengo237/snort3-installation-scripts/actions/workflows/build-snort-deb.yaml)[![Snort 3 Build and Remove Test](https://github.com/bengo237/snort3-installation-scripts/actions/workflows/snort-build-test.yaml/badge.svg)](https://github.com/bengo237/snort3-installation-scripts/actions/workflows/snort-build-test.yaml)
+[![Build and Package Snort 3](https://github.com/adorsys-gis/snort3-installation-scripts/actions/workflows/build-snort-deb.yaml/badge.svg)](https://github.com/adorsys-gis/snort3-installation-scripts/actions/workflows/build-snort-deb.yaml)[![Snort 3 Build and Remove Test](https://github.com/adorsys-gis/snort3-installation-scripts/actions/workflows/snort-build-test.yaml/badge.svg)](https://github.com/adorsys-gis/snort3-installation-scripts/actions/workflows/snort-build-test.yaml)
 # Automation of Snort3 Installation and Uninstallation for Linux
 
 This repository contains Bash scripts that automate the process of installing, configuring, and uninstalling Snort3 on a Linux system. Snort is an open-source network intrusion prevention system (NIPS) and network intrusion detection system (NIDS) capable of performing real-time traffic analysis and packet logging.
@@ -38,7 +38,7 @@ sudo ./build/build.sh
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/bengo237/snort3-installation-scripts.git
+   git clone https://github.com/adorsys-gis/snort3-installation-scripts.git
    cd snort3-installation-scripts
    ```
 
@@ -57,7 +57,7 @@ sudo ./build/build.sh
 You can run the installation script directly from the repository:
 
    ```bash
-   sudo curl -sl https://raw.githubusercontent.com/bengo237/snort3-installation-scripts/main/install-snort3.sh | bash
+   sudo curl -sl https://raw.githubusercontent.com/adorsys-gis/snort3-installation-scripts/main/install-snort3.sh | bash
    ```
 
 3. Once the installation is complete, verify the installation by running:
@@ -82,7 +82,7 @@ To completely uninstall Snort3 and remove all configurations, you can run the un
 You can run the uninstallation script directly from the repository:
 
    ```bash
-   sudo curl -sl https://raw.githubusercontent.com/bengo237/snort3-installation-scripts/main/uninstall-snort3.sh | bash
+   sudo curl -sl https://raw.githubusercontent.com/adorsys-gis/snort3-installation-scripts/main/uninstall-snort3.sh | bash
    ```
 
    This script will:
