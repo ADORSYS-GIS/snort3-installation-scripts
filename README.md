@@ -1,4 +1,4 @@
-[![Build and Package Snort 3](https://github.com/adorsys-gis/snort3-installation-scripts/actions/workflows/build-snort-deb.yaml/badge.svg)](https://github.com/adorsys-gis/snort3-installation-scripts/actions/workflows/build-snort-deb.yaml)[![Snort 3 Build and Remove Test](https://github.com/adorsys-gis/snort3-installation-scripts/actions/workflows/snort-build-test.yaml/badge.svg)](https://github.com/adorsys-gis/snort3-installation-scripts/actions/workflows/snort-build-test.yaml)
+[![Snort 3 Build and Remove Test](https://github.com/adorsys-gis/snort3-installation-scripts/actions/workflows/snort-build-test.yaml/badge.svg)](https://github.com/adorsys-gis/snort3-installation-scripts/actions/workflows/snort-build-test.yaml)
 # Automation of Snort3 Installation and Uninstallation for Linux
 
 This repository contains Bash scripts that automate the process of installing, configuring, and uninstalling Snort3 on a Linux system. Snort is an open-source network intrusion prevention system (NIPS) and network intrusion detection system (NIDS) capable of performing real-time traffic analysis and packet logging.
